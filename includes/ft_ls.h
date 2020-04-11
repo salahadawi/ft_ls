@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 12:20:24 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/11 19:33:48 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/11 20:36:08 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,8 @@ typedef	struct	s_ls
 	char		*flags;
 	t_file		*files;
 	t_dir		*dirs;
+	int			dirs_amount;
+	int			files_amount;
 	int			files_dirs_amount;
 	int			sort_mode;
 	int			links_width;
@@ -90,5 +92,23 @@ void	mergesort(t_ls *ls, t_file **files);
 t_file	*sorted_merge_alpha(t_file *first_half, t_file *second_half);
 
 t_file	*sorted_merge_alpha_rev(t_file *first_half, t_file *second_half);
+
+t_file	*sorted_merge_mod_time(t_file *first_half, t_file *second_half);
+
+t_file	*sorted_merge_mod_time_rev(t_file *first_half, t_file *second_half);
+
+t_dir	*sorted_merge_alpha_dir(t_dir *first_half, t_dir *second_half);
+
+t_dir	*sorted_merge_alpha_rev_dir(t_dir *first_half, t_dir *second_half);
+
+t_dir	*sorted_merge_mod_time_dir(t_dir *first_half, t_dir *second_half);
+
+t_dir	*sorted_merge_mod_time_rev_dir(t_dir *first_half, t_dir *second_half);
+
+t_dir	*sorted_merge_dir(t_ls *ls, t_dir *first_half, t_dir *second_half);
+
+void	split_list_dir(t_dir *head, t_dir **first_half, t_dir **second_half);
+
+void	mergesort_dir(t_ls *ls, t_dir **dirs);
 
 #endif

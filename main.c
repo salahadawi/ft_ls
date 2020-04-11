@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 13:11:14 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/11 19:52:14 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/11 21:36:49 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ void	new_dir(t_dir **dir, char *path)
 	{
 		*dir = (t_dir*)ft_memalloc(sizeof(t_dir));
 		(*dir)->path = path;
+		(*dir)->files = NULL;
 		(*dir)->next = NULL;
 		return ;
 	}
@@ -112,10 +113,22 @@ void	save_stats(t_ls *ls, t_file *current, char *path)
 	{
 		ft_fprintf(2,
 		"ft_ls: cannot access '%s': No such file or directory\n",
-		filename);		
+		filename);
+		ls->files_amount--;
 	}
 	update_max_width(ls, current->stats);
 	free(filename);
+}
+
+void	save_stats_dir(t_ls *ls, t_dir *current)
+{
+	if (stat(current->path, &current->stats) < 0)
+	{
+		ft_fprintf(2,
+		"ft_ls: cannot access '%s': No such file or directory\n",
+		current->path);
+	}
+	update_max_width(ls, current->stats);
 }
 
 void	open_files(t_ls *ls)
@@ -140,6 +153,8 @@ void	open_files(t_ls *ls)
 				save_stats(ls, file, dir->path);
 			file = file->next;
 		}
+		if (!((dir->path[0] == '.' && !ft_strchr(ls->flags, 'a'))))
+				save_stats_dir(ls, dir);
 		dir = dir->next;
 	}
 }
@@ -148,12 +163,16 @@ void	add_dir(t_dir **dir, char *path)
 {
 	struct dirent	*p_dirent;
 	DIR				*p_dir;
+	t_dir			*dir_ptr;
 
 	if (!(p_dir = opendir(path)))
 		handle_error("Directory could not be opened");
 	new_dir(dir, path);
+	dir_ptr = *dir;
+	while (dir_ptr->next)
+		dir_ptr = dir_ptr->next;
 	while ((p_dirent = readdir(p_dir)))
-		new_file(&(*dir)->files, ft_strdup(p_dirent->d_name));
+		new_file(&dir_ptr->files, ft_strdup(p_dirent->d_name));
 	closedir(p_dir);
 }
 
@@ -233,9 +252,15 @@ void	save_files(t_ls *ls, int argc, char **argv)
 	while (argc--)
 	{
 		if (check_if_dir(*argv))
+		{
 			add_dir(&ls->dirs, *argv++);
+			ls->dirs_amount++;
+		}
 		else
+		{
 			new_file(&ls->files, *argv++);
+			ls->files_amount++;
+		}
 		ls->files_dirs_amount++;
 	}
 }
@@ -248,6 +273,9 @@ void	init_ls(t_ls **ls, int *argc, char **argv)
 	(*ls)->sort_mode = SORT_ALPHA;
 	(*ls)->links_width = 0;
 	(*ls)->size_width = 0;
+	(*ls)->files_amount = 0;
+	(*ls)->dirs_amount = 0;
+	(*ls)->files_dirs_amount = 0;
 	argv++;
 	save_options(*ls, argc, &argv);
 	save_files(*ls, *argc, argv);
@@ -323,17 +351,31 @@ void	count_total_blocks(t_dir *dir)
 }
 void	print_ls(t_ls *ls)
 {
-	if (ls->files)
-		print_files(ls, ls->files);
-	if (ls->dirs)
-		while (ls->dirs)
+	t_file	*files_ptr;
+	t_dir	*dir_ptr;
+	int		i;
+
+	files_ptr = ls->files;
+	dir_ptr = ls->dirs;
+	i = ls->dirs_amount - 1;
+	if (ls->files_amount)
+		print_files(ls, files_ptr);
+	if (dir_ptr)
+	{
+		if (ls->files_amount)
+			ft_printf("\n");
+		while (dir_ptr)
 		{
 			if (ls->files_dirs_amount > 1)
-				ft_printf("\n%s:\n", ls->dirs->path);
-			count_total_blocks(ls->dirs);
-			print_files(ls, ls->dirs->files);
-			ls->dirs = ls->dirs->next;
+				ft_printf("%s:\n", dir_ptr->path);
+			if (ft_strchr(ls->flags, 'l'))
+				count_total_blocks(dir_ptr);
+			print_files(ls, dir_ptr->files);
+			if (ls->dirs_amount > 1 && i--)
+				ft_printf("\n", dir_ptr->path);
+			dir_ptr = dir_ptr->next;
 		}	
+	}
 }
 
 void	sort_files(t_ls *ls)
@@ -341,12 +383,49 @@ void	sort_files(t_ls *ls)
 	t_dir *dir;
 
 	mergesort(ls, &ls->files);
+	mergesort_dir(ls, &ls->dirs);
 	dir = ls->dirs;
 	while (dir)
 	{
 		mergesort(ls, &dir->files);
 		dir = dir->next;
 	}
+}
+
+void	free_files(t_file *files)
+{
+	t_file *tmp;
+
+	while (files)
+	{
+		tmp = files->next;
+		free(files->name);
+		free(files);
+		files = tmp;
+	}
+}
+
+void	free_dirs(t_dir *dirs)
+{
+	t_dir *tmp;
+
+	while (dirs)
+	{
+		tmp = dirs->next;
+		exit(0);
+		free(dirs->path);
+		free_files(dirs->files);
+		free(dirs);
+		dirs = tmp;
+	}
+}
+
+void	free_ls(t_ls *ls)
+{
+	free(ls->flags);
+	free_files(ls->files);
+	free_dirs(ls->dirs);
+	free(ls);
 }
 
 int		main(int argc, char **argv)
@@ -357,5 +436,6 @@ int		main(int argc, char **argv)
 	open_files(ls);
 	sort_files(ls);
 	print_ls(ls);
+	//free_ls(ls);
 	return (0);
 }
