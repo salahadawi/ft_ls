@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 13:11:14 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/10 22:03:51 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/11 17:55:27 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void	handle_error(char *message)
 {
-	ft_printf("Error: %s.\n", message);
+	ft_printf("ft_ls: %s\n", message);
 	exit(1);
 }
 
@@ -42,6 +42,18 @@ void	new_file(t_file **files, char *name)
 	new_file(&(*files)->next, name);
 }
 
+void	new_dir(t_dir **dir, char *path)
+{
+	if (!*dir)
+	{
+		*dir = (t_dir*)ft_memalloc(sizeof(t_dir));
+		(*dir)->path = path;
+		(*dir)->next = NULL;
+		return ;
+	}
+	new_dir(&(*dir)->next, path);
+}
+
 char	*format_time(char *time)
 {
 	char *formatted;
@@ -51,34 +63,39 @@ char	*format_time(char *time)
 	return (formatted);
 }
 
-void	open_files(t_file *files)
+void	save_stats(t_file *current)
+{
+	if (stat(current->name, &current->stats) < 0)
+	{
+		ft_fprintf(2,
+		"ft_ls: cannot access '%s': No such file or directory\n",
+		current->name);		
+	}
+}
+
+void	open_files(t_ls *ls, t_file *files)
 {
 	t_file *current;
 
 	current = files;
 	while (current)
 	{
-		#include <stdio.h>
-		if (stat(current->name, &current->stats) < 0)
-		{
-			ft_fprintf(2,
-			"ft_ls: cannot access '%s': No such file or directory\n",
-			current->name);
-			
-		}
+		if (!((current->name[0] == '.' && !ft_strchr(ls->flags, 'a'))))
+			save_stats(current);
 		current = current->next;
 	}
 }
 
-void	add_dir(t_file **files, char *dir)
+void	add_dir(t_dir **dir, char *path)
 {
 	struct dirent	*p_dirent;
 	DIR				*p_dir;
 
-	if (!(p_dir = opendir(dir)))
+	if (!(p_dir = opendir(path)))
 		handle_error("Directory could not be opened");
+	new_dir(dir, path);
 	while ((p_dirent = readdir(p_dir)))
-		new_file(files, ft_strdup(p_dirent->d_name));
+		new_file(&(*dir)->files, ft_strdup(p_dirent->d_name));
 	closedir(p_dir);
 }
 
@@ -95,6 +112,10 @@ int	ft_strcmp_case(const char *s1, const char *s2)
 		return (1);
 	while (s1[i] || s2[i])
 	{
+		if (s1[i] == '.')
+			s1++;
+		if (s2[i] == '.')
+			s2++;
 		if ((unsigned char)low(s1[i]) != (unsigned char)low(s2[i]))
 			return ((unsigned char)low(s1[i]) - (unsigned char)low(s2[i]));
 		i++;
@@ -102,107 +123,79 @@ int	ft_strcmp_case(const char *s1, const char *s2)
 	return (0);
 }
 
-
-t_file	*sorted_merge_alpha(t_file *first_half, t_file *second_half)
+void	save_flag(t_ls *ls, char *flag)
 {
-	t_file *sorted;
+	int i;
 
-	if (!first_half)
-		return (second_half);
-	if (!second_half)
-		return (first_half);
-	if (ft_strcmp_case(first_half->name, second_half->name) < 0)
+	i = 1;
+	while (flag[i])
 	{
-		sorted = first_half;
-		sorted->next = sorted_merge_alpha(first_half->next, second_half);
+		if (!(ft_strchr(VALID_FLAGS, flag[i])))
+			handle_error(ft_sprintf("invalid option -- '%c'", flag[i]));
+		ls->flags = join_char_to_str(ls->flags, flag[i++]);
 	}
-	else
-	{
-		sorted = second_half;
-		sorted->next = sorted_merge_alpha(first_half, second_half->next);
-	}
-	return (sorted);
 }
 
-t_file	*sorted_merge_alpha_rev(t_file *first_half, t_file *second_half)
+void	save_options(t_ls *ls, int *argc, char ***argv)
 {
-	t_file *sorted;
-
-	if (!first_half)
-		return (second_half);
-	if (!second_half)
-		return (first_half);
-	if (ft_strcmp_case(first_half->name, second_half->name) > 0)
+	*argc -= 1;
+	while (*argc)
 	{
-		sorted = first_half;
-		sorted->next = sorted_merge_alpha_rev(first_half->next, second_half);
+		if (**argv[0] != '-' || ft_strlen(**argv) < 2)
+			return ;
+		save_flag(ls, *(*argv)++);
+		*argc -= 1;
 	}
-	else
-	{
-		sorted = second_half;
-		sorted->next = sorted_merge_alpha_rev(first_half, second_half->next);
-	}
-	return (sorted);
 }
 
-t_file	*sorted_merge(t_file *first_half, t_file *second_half, int sorting_mode)
+void	sort_mode(t_ls *ls)
 {
-	if (sorting_mode == SORT_ALPHA)
-		return (sorted_merge_alpha(first_half, second_half));
-	if (sorting_mode == SORT_ALPHA)
-		return (sorted_merge_alpha_rev(first_half, second_half));
-	else
-		handle_error("Invalid sort mode");
-	return NULL;
-}
-
-void	split_list(t_file *head, t_file **first_half, t_file **second_half)
-{
-	t_file *fast;
-	t_file *slow;
-
-	slow = head;
-	fast = head->next;
-	while (fast)
-	{
-		fast = fast->next;
-		if (fast)
-		{
-			slow = slow->next;
-			fast = fast->next;
-		}
-	}
-	*first_half = head;
-	*second_half = slow->next;
-	slow->next = NULL;
-}
-
-void	mergesort(t_file **files, int sorting_mode)
-{
-	t_file *head;
-	t_file *first_half;
-	t_file*second_half;
-
-	head = (*files);
-	if (!head || !head->next)
+	if (!ls->flags)
 		return ;
-	split_list(head, &first_half, &second_half);
-	mergesort(&first_half, sorting_mode);
-	mergesort(&second_half, sorting_mode);
-	*files = sorted_merge(first_half, second_half, sorting_mode);
+	if (ft_strchr(ls->flags, 't'))
+		ls->sort_mode = SORT_MOD_TIME;
+	if (ft_strchr(ls->flags, 'r'))
+		ls->sort_mode++;
 }
 
-int		main(int argc, char **argv)
+int		check_if_dir(char *path)
 {
-	t_file	*files;
+	struct stat		stats;
 
-	files = NULL;
-	if (argc == 1)
-		add_dir(&files, "./");
-	while (argc-- > 1)
-		new_file(&files, *(++argv));
-	open_files(files);
-	mergesort(&files, SORT_ALPHA);
+	stat(path, &stats);
+	if (S_ISDIR(stats.st_mode))
+		return (1);
+	return (0);
+}
+
+void	save_files(t_ls *ls, int argc, char **argv)
+{
+	if (!argc)
+		add_dir(&ls->dirs, "./");
+	while (argc--)
+	{
+		if (check_if_dir(*argv))
+			add_dir(&ls->dirs, *argv++);
+		else
+			new_file(&ls->files, *argv++);
+	}
+}
+
+void	init_ls(t_ls **ls, int *argc, char **argv)
+{
+	*ls = (t_ls*)malloc(sizeof(t_ls));
+	(*ls)->flags = ft_strdup("-");
+	(*ls)->files = NULL;
+	(*ls)->sort_mode = SORT_ALPHA;
+	argv++;
+	save_options(*ls, argc, &argv);
+	save_files(*ls, *argc, argv);
+	sort_mode(*ls);
+}
+
+void	print_l(t_ls *ls, t_file *files)
+{
+	(void)ls;
 	while (files)
 	{
 		if (files->stats.st_mode) //seems to work?
@@ -220,11 +213,52 @@ int		main(int argc, char **argv)
 			ft_printf(" %2d", files->stats.st_nlink);
 			ft_printf(" %s", getpwuid(files->stats.st_uid)->pw_name);
 			ft_printf(" %s", getgrgid(files->stats.st_gid)->gr_name);
-			ft_printf(" %5d", files->stats.st_size);
+			ft_printf(" %5d", files->stats.st_size); //width should be determined by widest file
 			ft_printf(" %s", format_time(ctime(&files->stats.st_ctime)));
 			ft_printf(" %s\n", files->name);
 		}
 		files = files->next;
 	}
+}
+
+void	print_basic(t_ls *ls, t_file *files)
+{
+	(void)ls;
+	while (files)
+	{
+		if (files->stats.st_mode) //seems to work?
+			ft_printf("%s  ", files->name);
+		files = files->next;
+	}
+	ft_printf("\n");
+}
+
+void	print_files(t_ls *ls, t_file *files)
+{
+	if (ft_strchr(ls->flags, 'l'))
+		print_l(ls, files);
+	else
+		print_basic(ls, files);
+}
+
+void	print_ls(t_ls *ls)
+{
+	print_files(ls, ls->files);
+	while (ls->dirs)
+	{
+		ft_printf("test");
+		print_files(ls, ls->dirs->files);
+		ls->dirs = ls->dirs->next;
+	}	
+}
+
+int		main(int argc, char **argv)
+{
+	t_ls	*ls;
+
+	init_ls(&ls, &argc, argv);
+	open_files(ls, ls->files);
+	mergesort(ls, &ls->files);
+	print_ls(ls);
 	return (0);
 }
