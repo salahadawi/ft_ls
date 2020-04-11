@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 13:11:14 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/11 21:36:49 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/11 21:48:45 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -308,7 +308,9 @@ void	print_l(t_ls *ls, t_file *files)
 			format = ft_sprintf(" %%%dd", ls->size_width);
 			ft_printf(format, files->stats.st_size);
 			free(format);
-			ft_printf(" %s", format_time(ctime(&files->stats.st_ctime)));
+			format = format_time(ctime(&files->stats.st_ctime));
+			ft_printf(" %s", format);
+			free(format);
 			ft_printf(" %s\n", files->name);
 		}
 		files = files->next;
@@ -412,8 +414,6 @@ void	free_dirs(t_dir *dirs)
 	while (dirs)
 	{
 		tmp = dirs->next;
-		exit(0);
-		free(dirs->path);
 		free_files(dirs->files);
 		free(dirs);
 		dirs = tmp;
@@ -436,6 +436,6 @@ int		main(int argc, char **argv)
 	open_files(ls);
 	sort_files(ls);
 	print_ls(ls);
-	//free_ls(ls);
+	free_ls(ls);
 	return (0);
 }
