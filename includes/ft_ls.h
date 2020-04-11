@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 12:20:24 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/11 17:50:22 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/11 19:33:48 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,10 @@ typedef	struct	s_ls
 	char		*flags;
 	t_file		*files;
 	t_dir		*dirs;
+	int			files_dirs_amount;
 	int			sort_mode;
+	int			links_width;
+	int			size_width;
 }				t_ls;
 
 void	handle_error(char *message);
@@ -62,7 +65,7 @@ void	new_file(t_file **files, char *name);
 
 char	*format_time(char *time);
 
-void	open_files(t_ls *ls, t_file *files);
+void	open_files(t_ls *ls);
 
 void	add_dir(t_dir **dir, char *path);
 

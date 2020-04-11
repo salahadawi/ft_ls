@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 13:11:14 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/11 17:55:27 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/11 19:52:14 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,26 +63,84 @@ char	*format_time(char *time)
 	return (formatted);
 }
 
-void	save_stats(t_file *current)
+char	*ft_strjoindir(char const *s1, char const *s2)
 {
-	if (stat(current->name, &current->stats) < 0)
+	char *str;
+
+	if (!(str = (char*)ft_memalloc(ft_strlen(s1) + ft_strlen(s2) + 2)))
+		return (NULL);
+	ft_strcpy(str, s1);
+	ft_strcat(str, "/");
+	ft_strcat(str, s2);
+	return (str);
+}
+
+int		nbrlen(int n)
+{
+	int i;
+
+	i = 0;
+	while (n || !i)
+	{
+		n /= 10;
+		i++;
+	}
+	return (i);
+}
+
+void	update_max_width(t_ls *ls, struct stat stats)
+{
+	int len;
+
+	len = nbrlen(stats.st_nlink);
+	if (len > ls->links_width)
+		ls->links_width = len;
+	len = nbrlen(stats.st_size);
+	if (len > ls->size_width)
+		ls->size_width = len;
+}
+
+void	save_stats(t_ls *ls, t_file *current, char *path)
+{
+	char *filename;
+
+	if (path)
+		filename = ft_strjoindir(path, current->name);
+	else
+		filename = ft_strdup(current->name);
+	if (stat(filename, &current->stats) < 0)
 	{
 		ft_fprintf(2,
 		"ft_ls: cannot access '%s': No such file or directory\n",
-		current->name);		
+		filename);		
 	}
+	update_max_width(ls, current->stats);
+	free(filename);
 }
 
-void	open_files(t_ls *ls, t_file *files)
+void	open_files(t_ls *ls)
 {
-	t_file *current;
+	t_file	*file;
+	t_dir	*dir;
 
-	current = files;
-	while (current)
+	file = ls->files;
+	while (file)
 	{
-		if (!((current->name[0] == '.' && !ft_strchr(ls->flags, 'a'))))
-			save_stats(current);
-		current = current->next;
+		if (!((file->name[0] == '.' && !ft_strchr(ls->flags, 'a'))))
+			save_stats(ls, file, NULL);
+		file = file->next;
+	}
+	dir = ls->dirs;
+	while (dir)
+	{
+		file = dir->files;
+		while (file)
+		{
+			if (!((file->name[0] == '.' && !ft_strchr(ls->flags, 'a'))))
+				save_stats(ls, file, dir->path);
+			file = file->next;
+		}
+		dir = dir->next;
 	}
 }
 
@@ -178,6 +236,7 @@ void	save_files(t_ls *ls, int argc, char **argv)
 			add_dir(&ls->dirs, *argv++);
 		else
 			new_file(&ls->files, *argv++);
+		ls->files_dirs_amount++;
 	}
 }
 
@@ -187,6 +246,8 @@ void	init_ls(t_ls **ls, int *argc, char **argv)
 	(*ls)->flags = ft_strdup("-");
 	(*ls)->files = NULL;
 	(*ls)->sort_mode = SORT_ALPHA;
+	(*ls)->links_width = 0;
+	(*ls)->size_width = 0;
 	argv++;
 	save_options(*ls, argc, &argv);
 	save_files(*ls, *argc, argv);
@@ -195,6 +256,7 @@ void	init_ls(t_ls **ls, int *argc, char **argv)
 
 void	print_l(t_ls *ls, t_file *files)
 {
+	char *format;
 	(void)ls;
 	while (files)
 	{
@@ -210,10 +272,14 @@ void	print_l(t_ls *ls, t_file *files)
 			ft_printf((files->stats.st_mode & S_IROTH) ? "r" : "-");
 			ft_printf((files->stats.st_mode & S_IWOTH) ? "w" : "-");
 			ft_printf((files->stats.st_mode & S_IXOTH) ? "x" : "-");
-			ft_printf(" %2d", files->stats.st_nlink);
+			format = ft_sprintf(" %%%dd", ls->links_width);
+			ft_printf(format, files->stats.st_nlink);
+			free(format);
 			ft_printf(" %s", getpwuid(files->stats.st_uid)->pw_name);
 			ft_printf(" %s", getgrgid(files->stats.st_gid)->gr_name);
-			ft_printf(" %5d", files->stats.st_size); //width should be determined by widest file
+			format = ft_sprintf(" %%%dd", ls->size_width);
+			ft_printf(format, files->stats.st_size);
+			free(format);
 			ft_printf(" %s", format_time(ctime(&files->stats.st_ctime)));
 			ft_printf(" %s\n", files->name);
 		}
@@ -241,15 +307,46 @@ void	print_files(t_ls *ls, t_file *files)
 		print_basic(ls, files);
 }
 
+void	count_total_blocks(t_dir *dir)
+{
+	t_file			*file;
+	unsigned int	total;
+
+	total = 0;
+	file = dir->files;
+	while (file)
+	{
+		total += file->stats.st_blocks;
+		file = file->next;
+	}
+	ft_printf("total %u\n", total/2);
+}
 void	print_ls(t_ls *ls)
 {
-	print_files(ls, ls->files);
-	while (ls->dirs)
+	if (ls->files)
+		print_files(ls, ls->files);
+	if (ls->dirs)
+		while (ls->dirs)
+		{
+			if (ls->files_dirs_amount > 1)
+				ft_printf("\n%s:\n", ls->dirs->path);
+			count_total_blocks(ls->dirs);
+			print_files(ls, ls->dirs->files);
+			ls->dirs = ls->dirs->next;
+		}	
+}
+
+void	sort_files(t_ls *ls)
+{
+	t_dir *dir;
+
+	mergesort(ls, &ls->files);
+	dir = ls->dirs;
+	while (dir)
 	{
-		ft_printf("test");
-		print_files(ls, ls->dirs->files);
-		ls->dirs = ls->dirs->next;
-	}	
+		mergesort(ls, &dir->files);
+		dir = dir->next;
+	}
 }
 
 int		main(int argc, char **argv)
@@ -257,8 +354,8 @@ int		main(int argc, char **argv)
 	t_ls	*ls;
 
 	init_ls(&ls, &argc, argv);
-	open_files(ls, ls->files);
-	mergesort(ls, &ls->files);
+	open_files(ls);
+	sort_files(ls);
 	print_ls(ls);
 	return (0);
 }
