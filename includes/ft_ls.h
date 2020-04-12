@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 12:20:24 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/12 17:27:16 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/12 19:08:16 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ char	*format_time(char *time);
 
 void	open_files(t_ls *ls);
 
-void	add_dir(t_dir **dir, char *path);
+void	add_dir(t_ls *ls, t_dir **dir, char *path);
 
 int		ft_strcmp_case(const char *s1, const char *s2);
 

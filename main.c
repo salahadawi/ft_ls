@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 13:11:14 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/12 18:38:46 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/12 20:16:58 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,12 +66,15 @@ char	*format_time(char *time)
 
 char	*ft_strjoindir(char const *s1, char const *s2)
 {
-	char *str;
+	char	*str;
+	int		len1;
 
-	if (!(str = (char*)ft_memalloc(ft_strlen(s1) + ft_strlen(s2) + 2)))
+	len1 = ft_strlen(s1);
+	if (!(str = (char*)ft_memalloc(len1 + ft_strlen(s2) + 2)))
 		return (NULL);
 	ft_strcpy(str, s1);
-	ft_strcat(str, "/");
+	if (str[len1 - 1] != '/')
+		ft_strcat(str, "/");
 	ft_strcat(str, s2);
 	return (str);
 }
@@ -159,20 +162,37 @@ void	open_files(t_ls *ls)
 	}
 }
 
-void	add_dir(t_dir **dir, char *path)
+void	add_dir(t_ls *ls, t_dir **dir, char *path)
 {
 	struct dirent	*p_dirent;
 	DIR				*p_dir;
 	t_dir			*dir_ptr;
 
+	//ft_printf(path);
 	if (!(p_dir = opendir(path)))
+	{
+		ft_printf(path);
 		handle_error("Directory could not be opened");
+	}
 	new_dir(dir, path);
 	dir_ptr = *dir;
 	while (dir_ptr->next)
 		dir_ptr = dir_ptr->next;
 	while ((p_dirent = readdir(p_dir)))
+	{
+		(void)ls;
+		//ft_printf("%s\n", p_dirent->d_name);
 		new_file(&dir_ptr->files, p_dirent->d_name);
+		if (ft_strchr(ls->flags, 'R') && check_if_dir(ft_strjoindir(path, p_dirent->d_name)))
+			if (!((p_dirent->d_name[0] == '.' && !ft_strchr(ls->flags, 'a'))))
+				if (!ft_strequ(p_dirent->d_name, "..") && !ft_strequ(p_dirent->d_name, "."))
+				{
+					//ft_printf(p_dirent->d_name);
+					add_dir(ls, &dir_ptr, ft_strjoindir(path, p_dirent->d_name));
+					ls->dirs_amount++;
+					ls->files_dirs_amount++;
+				}
+	}
 	closedir(p_dir);
 }
 
@@ -239,7 +259,8 @@ int		check_if_dir(char *path)
 {
 	struct stat		stats;
 
-	lstat(path, &stats);
+	if (lstat(path, &stats) != 0)
+		return (0);
 	if (S_ISDIR(stats.st_mode))
 		return (1);
 	return (0);
@@ -248,12 +269,15 @@ int		check_if_dir(char *path)
 void	save_files(t_ls *ls, int argc, char **argv)
 {
 	if (!argc)
-		add_dir(&ls->dirs, "./");
+	{
+		add_dir(ls, &ls->dirs, ".");
+		ls->dirs_amount++;
+	}
 	while (argc--)
 	{
 		if (check_if_dir(*argv))
 		{
-			add_dir(&ls->dirs, *argv++);
+			add_dir(ls, &ls->dirs, *argv++);
 			ls->dirs_amount++;
 		}
 		else
@@ -275,7 +299,7 @@ void	get_terminal_size(t_ls *ls)
 
 void	init_ls(t_ls **ls, int *argc, char **argv)
 {
-	*ls = (t_ls*)malloc(sizeof(t_ls));
+	*ls = (t_ls*)ft_memalloc(sizeof(t_ls));
 	(*ls)->flags = ft_strdup("-");
 	(*ls)->files = NULL;
 	(*ls)->sort_mode = SORT_ALPHA;
@@ -343,6 +367,7 @@ void	print_l(t_ls *ls, t_file *files)
 				readlink(files->name, format, 999);
 				ft_printf(" -> ");
 				print_color(files, "%s", format);
+				free(format);
 			}
 			ft_printf("\n");
 		}
@@ -556,7 +581,7 @@ int		*calculate_padding(t_ls *ls, t_file *files, int row_amount)
 	file_amount = count_files(ls, files);
 	col_amount = count_cols(file_amount, row_amount);
 	//ft_printf("col_amount: %d\n", col_amount);
-	col_padding = (int*)malloc(sizeof(int) * col_amount + 1);
+	col_padding = (int*)ft_memalloc(sizeof(int) * col_amount + 1);
 	col = 0;
 	while (col < col_amount)
 	{
