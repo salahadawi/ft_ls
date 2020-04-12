@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 13:11:14 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/12 17:36:42 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/12 17:51:17 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void	new_file(t_file **files, char *name)
 	if (!*files)
 	{
 		*files = (t_file*)ft_memalloc(sizeof(t_file));
-		(*files)->name = name;
+		(*files)->name = ft_strdup(name);
 		(*files)->next = NULL;
 		return ;
 	}
@@ -172,7 +172,7 @@ void	add_dir(t_dir **dir, char *path)
 	while (dir_ptr->next)
 		dir_ptr = dir_ptr->next;
 	while ((p_dirent = readdir(p_dir)))
-		new_file(&dir_ptr->files, ft_strdup(p_dirent->d_name));
+		new_file(&dir_ptr->files, p_dirent->d_name);
 	closedir(p_dir);
 }
 
@@ -378,25 +378,25 @@ int		padding_total(t_ls *ls, t_file *files, int row_amount)
 	total = 0;
 	while (padding[col] > 0)
 		total += padding[col++];
+	free(padding);
 	return (total);
 }
 
 int		check_rows_len(t_ls *ls, t_file *files, int row_amount)
 {
-	int row;
 	int padding;
 
-	row = 0;
 	padding = padding_total(ls, files, row_amount);
 	padding += count_files(ls, files) / row_amount * 2;
 	//ft_printf("%d\n", padding);
 	if (padding > ls->window_cols)
 		return (0);
 	return (1);
+	/*
 	while (row < row_amount)
 		if (!check_row(ls, files, (int[2]){row++, row_amount}))
 			return (0);
-	return (1);
+	return (1);*/
 }
 
 int		count_rows(t_ls *ls, t_file *files)
@@ -559,6 +559,7 @@ void	print_basic(t_ls *ls, t_file *files)
 		print_files_row(files, row++, row_amount, col_padding);
 		ft_printf("\n");
 	}
+	free(col_padding);
 }
 
 void	print_files(t_ls *ls, t_file *files)
