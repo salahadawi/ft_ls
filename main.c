@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 13:11:14 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/12 21:34:25 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/12 21:42:40 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,6 +221,10 @@ int	ft_strcmp_case(const char *s1, const char *s2)
 			s2++;
 	while (s1[i] || s2[i])
 	{
+		if (s1[i] == '.')
+			s1++;
+		if (s2[i] == '.')
+			s2++;
 		if ((unsigned char)low(s1[i]) != (unsigned char)low(s2[i]))
 			return ((unsigned char)low(s1[i]) - (unsigned char)low(s2[i]));
 		i++;
