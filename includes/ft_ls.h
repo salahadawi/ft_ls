@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 12:20:24 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/12 19:08:16 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/12 20:27:06 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,12 @@
 # include <sys/stat.h>
 # include <dirent.h>
 # include <unistd.h>
+# include <stdio.h>
 # include <time.h>
 # include <pwd.h>
 # include <grp.h>
 
-# define VALID_FLAGS "alrRtx"
+# define VALID_FLAGS "alrRtx1"
 
 enum				e_sorting_mode
 {

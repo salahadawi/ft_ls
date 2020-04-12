@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 13:11:14 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/12 20:16:58 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/12 21:34:25 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 void	handle_error(char *message)
 {
 	ft_printf("ft_ls: %s\n", message);
+	free(message);
 	exit(1);
 }
 
@@ -47,7 +48,7 @@ void	new_dir(t_dir **dir, char *path)
 	if (!*dir)
 	{
 		*dir = (t_dir*)ft_memalloc(sizeof(t_dir));
-		(*dir)->path = path;
+		(*dir)->path = ft_strdup(path);
 		(*dir)->files = NULL;
 		(*dir)->next = NULL;
 		return ;
@@ -167,12 +168,17 @@ void	add_dir(t_ls *ls, t_dir **dir, char *path)
 	struct dirent	*p_dirent;
 	DIR				*p_dir;
 	t_dir			*dir_ptr;
+	char			*filepath;
 
 	//ft_printf(path);
 	if (!(p_dir = opendir(path)))
 	{
-		ft_printf(path);
-		handle_error("Directory could not be opened");
+		ft_printf("ft_ls: cannot open directory '%s': Permission denied\n",
+		path);
+		free(path);
+		ls->dirs_amount--;
+		ls->files_dirs_amount--;
+		return ;
 	}
 	new_dir(dir, path);
 	dir_ptr = *dir;
@@ -180,19 +186,21 @@ void	add_dir(t_ls *ls, t_dir **dir, char *path)
 		dir_ptr = dir_ptr->next;
 	while ((p_dirent = readdir(p_dir)))
 	{
-		(void)ls;
 		//ft_printf("%s\n", p_dirent->d_name);
 		new_file(&dir_ptr->files, p_dirent->d_name);
-		if (ft_strchr(ls->flags, 'R') && check_if_dir(ft_strjoindir(path, p_dirent->d_name)))
+		filepath = ft_strjoindir(path, p_dirent->d_name);
+		if (ft_strchr(ls->flags, 'R') && check_if_dir(filepath))
 			if (!((p_dirent->d_name[0] == '.' && !ft_strchr(ls->flags, 'a'))))
 				if (!ft_strequ(p_dirent->d_name, "..") && !ft_strequ(p_dirent->d_name, "."))
 				{
 					//ft_printf(p_dirent->d_name);
-					add_dir(ls, &dir_ptr, ft_strjoindir(path, p_dirent->d_name));
+					add_dir(ls, &dir_ptr, ft_strdup(filepath));
 					ls->dirs_amount++;
 					ls->files_dirs_amount++;
 				}
+		free(filepath);
 	}
+	free(path);
 	closedir(p_dir);
 }
 
@@ -270,14 +278,14 @@ void	save_files(t_ls *ls, int argc, char **argv)
 {
 	if (!argc)
 	{
-		add_dir(ls, &ls->dirs, ".");
+		add_dir(ls, &ls->dirs, ft_strdup("."));
 		ls->dirs_amount++;
 	}
 	while (argc--)
 	{
 		if (check_if_dir(*argv))
 		{
-			add_dir(ls, &ls->dirs, *argv++);
+			add_dir(ls, &ls->dirs, ft_strdup(*argv++));
 			ls->dirs_amount++;
 		}
 		else
@@ -385,6 +393,17 @@ void	print_x(t_ls *ls, t_file *files)
 		files = files->next;
 	}
 	ft_printf("\n");
+}
+
+void	print_one(t_ls *ls, t_file *files)
+{
+	(void)ls;
+	while (files)
+	{
+		if (files->stats.st_mode) //seems to work?
+			print_color(files, "%s\n", files->name);
+		files = files->next;
+	}
 }
 
 int		check_row(t_ls *ls, t_file *files, int row[2])
@@ -617,6 +636,8 @@ void	print_files(t_ls *ls, t_file *files)
 		print_l(ls, files);
 	else if (ft_strchr(ls->flags, 'x'))
 		print_x(ls, files);
+	else if (ft_strchr(ls->flags, '1'))
+		print_one(ls, files);
 	else
 		print_basic(ls, files);
 }
@@ -699,6 +720,7 @@ void	free_dirs(t_dir *dirs)
 	{
 		tmp = dirs->next;
 		free_files(dirs->files);
+		free(dirs->path);
 		free(dirs);
 		dirs = tmp;
 	}
