@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/11 15:38:13 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/11 19:55:37 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/12 20:34:35 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ t_file	*sorted_merge(t_ls *ls, t_file *first_half, t_file *second_half)
 	else if (ls->sort_mode == SORT_MOD_TIME_REV)
 		return (sorted_merge_mod_time_rev(first_half, second_half));
 	else
-		handle_error("Invalid sort mode");
+		handle_error(ft_strdup("Invalid sort mode"));
 	return NULL;
 }
 
