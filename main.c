@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 13:11:14 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/12 22:02:53 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/12 22:12:44 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -357,15 +357,15 @@ void	print_l(t_ls *ls, t_file *files)
 			ft_printf((files->stats.st_mode & S_IRUSR) ? "r" : "-");
 			ft_printf((files->stats.st_mode & S_IWUSR) ? "w" : "-");
 			if (files->stats.st_mode & __S_ISUID)
-				ft_printf("S");
+				ft_printf((files->stats.st_mode & S_IXUSR) ? "s" : "S");
 			else
 				ft_printf((files->stats.st_mode & S_IXUSR) ? "x" : "-");
 			ft_printf((files->stats.st_mode & S_IRGRP) ? "r" : "-");
 			ft_printf((files->stats.st_mode & S_IWGRP) ? "w" : "-");
 			if (files->stats.st_mode & __S_ISGID)
-				ft_printf("S");
+				ft_printf((files->stats.st_mode & S_IXGRP) ? "s" : "S");
 			else
-			ft_printf((files->stats.st_mode & S_IXGRP) ? "x" : "-");
+				ft_printf((files->stats.st_mode & S_IXGRP) ? "x" : "-");
 			ft_printf((files->stats.st_mode & S_IROTH) ? "r" : "-");
 			ft_printf((files->stats.st_mode & S_IWOTH) ? "w" : "-");
 			if (files->stats.st_mode & __S_ISVTX)
