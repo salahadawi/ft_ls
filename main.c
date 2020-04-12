@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 13:11:14 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/12 17:51:17 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/12 18:38:46 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ void	save_stats(t_ls *ls, t_file *current, char *path)
 		filename = ft_strjoindir(path, current->name);
 	else
 		filename = ft_strdup(current->name);
-	if (stat(filename, &current->stats) < 0)
+	if (lstat(filename, &current->stats) < 0)
 	{
 		ft_fprintf(2,
 		"ft_ls: cannot access '%s': No such file or directory\n",
@@ -122,7 +122,7 @@ void	save_stats(t_ls *ls, t_file *current, char *path)
 
 void	save_stats_dir(t_ls *ls, t_dir *current)
 {
-	if (stat(current->path, &current->stats) < 0)
+	if (lstat(current->path, &current->stats) < 0)
 	{
 		ft_fprintf(2,
 		"ft_ls: cannot access '%s': No such file or directory\n",
@@ -239,7 +239,7 @@ int		check_if_dir(char *path)
 {
 	struct stat		stats;
 
-	stat(path, &stats);
+	lstat(path, &stats);
 	if (S_ISDIR(stats.st_mode))
 		return (1);
 	return (0);
@@ -291,6 +291,19 @@ void	init_ls(t_ls **ls, int *argc, char **argv)
 	sort_mode(*ls);
 }
 
+void	print_color(t_file *file, char *format, char *str)
+{
+	if (S_ISDIR(file->stats.st_mode))
+		ft_printf("\033[1;34m");
+	if (!S_ISDIR(file->stats.st_mode) &&
+		file->stats.st_mode & S_IXUSR)
+		ft_printf("\033[1;32m");
+	if (S_ISLNK(file->stats.st_mode))
+		ft_printf("\033[1;31m");
+	ft_printf(format, str);
+	ft_printf("\033[0m");
+}
+
 void	print_l(t_ls *ls, t_file *files)
 {
 	char *format;
@@ -299,7 +312,10 @@ void	print_l(t_ls *ls, t_file *files)
 	{
 		if (files->stats.st_mode) //seems to work?
 		{
-			ft_printf((S_ISDIR(files->stats.st_mode)) ? "d" : "-");
+			if (S_ISLNK(files->stats.st_mode))
+				ft_printf("l");
+			else
+				ft_printf((S_ISDIR(files->stats.st_mode)) ? "d" : "-");
 			ft_printf((files->stats.st_mode & S_IRUSR) ? "r" : "-");
 			ft_printf((files->stats.st_mode & S_IWUSR) ? "w" : "-");
 			ft_printf((files->stats.st_mode & S_IXUSR) ? "x" : "-");
@@ -320,7 +336,15 @@ void	print_l(t_ls *ls, t_file *files)
 			format = format_time(ctime(&files->stats.st_ctime));
 			ft_printf(" %s", format);
 			free(format);
-			ft_printf(" %s\n", files->name);
+			print_color(files, " %s", files->name);
+			if (S_ISLNK(files->stats.st_mode))
+			{
+				format = (char*)ft_memalloc(1000);
+				readlink(files->name, format, 999);
+				ft_printf(" -> ");
+				print_color(files, "%s", format);
+			}
+			ft_printf("\n");
 		}
 		files = files->next;
 	}
@@ -332,7 +356,7 @@ void	print_x(t_ls *ls, t_file *files)
 	while (files)
 	{
 		if (files->stats.st_mode) //seems to work?
-			ft_printf("%s  ", files->name);
+			print_color(files, "%s  ", files->name);
 		files = files->next;
 	}
 	ft_printf("\n");
@@ -441,7 +465,7 @@ void	print_files_row(t_file *files, int row, int row_amount, int *col_pad)
 					format = ft_sprintf("%%-%ds", col_pad[col]);
 				else
 					format = ft_sprintf("  %%-%ds", col_pad[col]);
-				ft_printf(format, files->name);
+				print_color(files, format, files->name);
 				free(format);
 				col++;
 			}
