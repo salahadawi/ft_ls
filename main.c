@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 13:11:14 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/11 21:48:45 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/12 17:36:42 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,12 +187,12 @@ int	ft_strcmp_case(const char *s1, const char *s2)
 		return (0);
 	if ((s1 && !s2) || (!s1 && s2))
 		return (1);
+	if (s1[0] == '.')
+			s1++;
+	if (s2[0] == '.')
+			s2++;
 	while (s1[i] || s2[i])
 	{
-		if (s1[i] == '.')
-			s1++;
-		if (s2[i] == '.')
-			s2++;
 		if ((unsigned char)low(s1[i]) != (unsigned char)low(s2[i]))
 			return ((unsigned char)low(s1[i]) - (unsigned char)low(s2[i]));
 		i++;
@@ -265,6 +265,14 @@ void	save_files(t_ls *ls, int argc, char **argv)
 	}
 }
 
+void	get_terminal_size(t_ls *ls)
+{
+	struct winsize w;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+	ls->window_cols = w.ws_col;
+	ls->window_rows = w.ws_row;
+}
+
 void	init_ls(t_ls **ls, int *argc, char **argv)
 {
 	*ls = (t_ls*)malloc(sizeof(t_ls));
@@ -277,6 +285,7 @@ void	init_ls(t_ls **ls, int *argc, char **argv)
 	(*ls)->dirs_amount = 0;
 	(*ls)->files_dirs_amount = 0;
 	argv++;
+	get_terminal_size(*ls);
 	save_options(*ls, argc, &argv);
 	save_files(*ls, *argc, argv);
 	sort_mode(*ls);
@@ -317,7 +326,7 @@ void	print_l(t_ls *ls, t_file *files)
 	}
 }
 
-void	print_basic(t_ls *ls, t_file *files)
+void	print_x(t_ls *ls, t_file *files)
 {
 	(void)ls;
 	while (files)
@@ -329,10 +338,235 @@ void	print_basic(t_ls *ls, t_file *files)
 	ft_printf("\n");
 }
 
+int		check_row(t_ls *ls, t_file *files, int row[2])
+{
+	int	i;
+	int	len;
+	int padding;
+
+	padding = padding_total(ls, files, row[1]);
+	i = 0;
+	len = 0;
+	while (files)
+	{
+		if (i++ == row[0])
+		{
+			if (files->stats.st_mode) //seems to work?
+				len += ft_strlen(files->name);
+		}
+		if (!files->stats.st_mode)
+			i--;
+		if (i == row[1])
+			i = 0;
+		files = files->next;
+	}
+	len += padding;
+	len -= 2;
+	if (padding > ls->window_cols)
+		return (0);
+	return (1);
+}
+
+int		padding_total(t_ls *ls, t_file *files, int row_amount)
+{
+	int total;
+	int col;
+	int *padding;
+
+	padding = calculate_padding(ls, files, row_amount);
+	col = 0;
+	total = 0;
+	while (padding[col] > 0)
+		total += padding[col++];
+	return (total);
+}
+
+int		check_rows_len(t_ls *ls, t_file *files, int row_amount)
+{
+	int row;
+	int padding;
+
+	row = 0;
+	padding = padding_total(ls, files, row_amount);
+	padding += count_files(ls, files) / row_amount * 2;
+	//ft_printf("%d\n", padding);
+	if (padding > ls->window_cols)
+		return (0);
+	return (1);
+	while (row < row_amount)
+		if (!check_row(ls, files, (int[2]){row++, row_amount}))
+			return (0);
+	return (1);
+}
+
+int		count_rows(t_ls *ls, t_file *files)
+{
+	int		total_len;
+	int		rows;
+	t_file	*file_ptr;
+
+	file_ptr = files;
+	total_len = 0;
+	while (files)
+	{
+		if (!((files->name[0] == '.' && !ft_strchr(ls->flags, 'a'))))
+			total_len += ft_strlen(files->name) + 2;
+		files = files->next;
+	}
+	total_len -= 2;
+	//ft_printf("%d\n", total_len);
+	rows = total_len / ls->window_cols + 1;
+	while (!check_rows_len(ls, file_ptr, rows))
+		rows++;
+	return (rows);
+}
+
+void	print_files_row(t_file *files, int row, int row_amount, int *col_pad)
+{
+	int	i;
+	int first;
+	int	col;
+	char *format;
+
+	i = 0;
+	col = 0;
+	first = 1;
+	while (files)
+	{
+		if (i++ == row)
+		{
+			if (files->stats.st_mode) //seems to work?
+			{
+				if (first-- > 0)
+					format = ft_sprintf("%%-%ds", col_pad[col]);
+				else
+					format = ft_sprintf("  %%-%ds", col_pad[col]);
+				ft_printf(format, files->name);
+				free(format);
+				col++;
+			}
+		}
+		if (!files->stats.st_mode)
+			i--;
+		if (i == row_amount)
+			i = 0;
+		files = files->next;
+	}
+}
+
+int		count_files(t_ls *ls, t_file *files)
+{
+	int files_amount;
+
+	files_amount = 0;
+	while (files)
+	{
+		if (!((files->name[0] == '.' && !ft_strchr(ls->flags, 'a'))))
+			files_amount++;
+		files = files->next;
+	}
+	return (files_amount);
+}
+
+int		count_cols(int file_amount, int row_amount)
+{
+	int cols;
+
+	cols = 0;
+	if (row_amount == 1)
+		return (file_amount);
+	while (file_amount > 0)
+	{
+		file_amount -= row_amount;
+		//ft_printf("file_amount: %d\n", file_amount);
+		//ft_printf("row amount: %d\n", row_amount);
+		cols++;
+	}
+	return (cols);
+}
+
+int		get_col_padding(t_ls *ls, t_file *files, int cols, int row_amount)
+{
+	int i;
+	int	padding;
+	int len;
+	
+	padding = 0;
+	while (cols-- > 0)
+	{
+		i = 0;
+		while (i++ < row_amount && files)
+		{
+			if (files->name[0] == '.' && !ft_strchr(ls->flags, 'a'))
+				i--;
+			files = files->next;
+		}
+	}
+	i = row_amount;
+	while (i-- > 0 && files)
+	{
+		if (!((files->name[0] == '.' && !ft_strchr(ls->flags, 'a'))))
+		{
+			len = ft_strlen(files->name);
+			//ft_printf("%s: %d", files->name, len);
+			if (len > padding)
+				padding = len;
+			files = files->next;
+		}
+		else
+		{
+			i++;
+			files = files->next;
+		}
+	}
+	return (padding);
+}
+
+int		*calculate_padding(t_ls *ls, t_file *files, int row_amount)
+{
+	int file_amount;
+	int	col_amount;
+	int	*col_padding;
+	int col;
+
+	file_amount = count_files(ls, files);
+	col_amount = count_cols(file_amount, row_amount);
+	//ft_printf("col_amount: %d\n", col_amount);
+	col_padding = (int*)malloc(sizeof(int) * col_amount + 1);
+	col = 0;
+	while (col < col_amount)
+	{
+		col_padding[col] = get_col_padding(ls, files, col, row_amount);
+		//ft_printf("%d\n", col_amount);
+		//ft_printf("%d\n", col_padding[col]);
+		col++;
+	}
+	col_padding[col] = -1;
+	return (col_padding);
+}
+
+void	print_basic(t_ls *ls, t_file *files)
+{
+	int	row_amount;
+	int	row;
+	int	*col_padding;
+
+	row_amount = count_rows(ls, files);
+	col_padding = calculate_padding(ls, files, row_amount);
+	row = 0;
+	while (row < row_amount)
+	{
+		print_files_row(files, row++, row_amount, col_padding);
+		ft_printf("\n");
+	}
+}
+
 void	print_files(t_ls *ls, t_file *files)
 {
 	if (ft_strchr(ls->flags, 'l'))
 		print_l(ls, files);
+	else if (ft_strchr(ls->flags, 'x'))
+		print_x(ls, files);
 	else
 		print_basic(ls, files);
 }

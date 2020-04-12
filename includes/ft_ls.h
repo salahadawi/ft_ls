@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 12:20:24 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/11 20:36:08 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/12 17:27:16 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,15 @@
 
 # include "../libft/includes/libft.h"
 # include <sys/types.h>
+# include <sys/ioctl.h>
 # include <sys/stat.h>
 # include <dirent.h>
+# include <unistd.h>
 # include <time.h>
 # include <pwd.h>
 # include <grp.h>
 
-# define VALID_FLAGS "alrRt"
+# define VALID_FLAGS "alrRtx"
 
 enum				e_sorting_mode
 {
@@ -57,6 +59,8 @@ typedef	struct	s_ls
 	int			sort_mode;
 	int			links_width;
 	int			size_width;
+	int			window_cols;
+	int			window_rows;
 }				t_ls;
 
 void	handle_error(char *message);
@@ -110,5 +114,59 @@ t_dir	*sorted_merge_dir(t_ls *ls, t_dir *first_half, t_dir *second_half);
 void	split_list_dir(t_dir *head, t_dir **first_half, t_dir **second_half);
 
 void	mergesort_dir(t_ls *ls, t_dir **dirs);
+
+void	new_dir(t_dir **dir, char *path);
+
+char	*ft_strjoindir(char const *s1, char const *s2);
+
+int		nbrlen(int n);
+
+void	update_max_width(t_ls *ls, struct stat stats);
+
+void	save_stats(t_ls *ls, t_file *current, char *path);
+
+void	save_stats_dir(t_ls *ls, t_dir *current);
+
+int		check_if_dir(char *path);
+
+void	get_terminal_size(t_ls *ls);
+
+void	print_l(t_ls *ls, t_file *files);
+
+void	print_x(t_ls *ls, t_file *files);
+
+int		padding_total(t_ls *ls, t_file *files, int row_amount);
+
+int		check_rows_len(t_ls *ls, t_file *files, int row_amount);
+
+int		count_rows(t_ls *ls, t_file *files);
+
+void	print_files_row(t_file *files, int row, int row_amount, int *col_pad);
+
+int		count_files(t_ls *ls, t_file *files);
+
+int		count_cols(int file_amount, int row_amount);
+
+int		*calculate_padding(t_ls *ls, t_file *files, int row_amount);
+
+void	print_basic(t_ls *ls, t_file *files);
+
+void	print_files(t_ls *ls, t_file *files);
+
+void	count_total_blocks(t_dir *dir);
+
+void	print_ls(t_ls *ls);
+
+void	sort_files(t_ls *ls);
+
+void	free_files(t_file *files);
+
+void	free_dirs(t_dir *dirs);
+
+void	free_ls(t_ls *ls);
+
+int		check_row(t_ls *ls, t_file *files, int row[2]);
+
+int		get_col_padding(t_ls *ls, t_file *files, int cols, int row_amount);
 
 #endif
