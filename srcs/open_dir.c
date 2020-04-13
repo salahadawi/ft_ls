@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 14:37:00 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/13 14:40:15 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/13 20:02:55 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ DIR		*open_dir(t_ls *ls, char *path)
 
 	if (!(p_dir = opendir(path)))
 	{
-		ft_printf("ft_ls: cannot open directory '%s': Permission denied\n",
+		ft_fprintf(2, "ft_ls: cannot open directory '%s': Permission denied\n",
 		path);
 		free(path);
 		ls->dirs_amount--;

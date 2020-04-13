@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 13:23:15 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/13 14:12:14 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/13 20:02:27 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void	handle_error(char *message)
 {
-	ft_printf("ft_ls: %s\n", message);
+	ft_fprintf(2, "ft_ls: %s\n", message);
 	free(message);
 	exit(1);
 }
