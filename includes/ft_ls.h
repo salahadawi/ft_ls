@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 12:20:24 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/13 12:04:21 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/13 12:37:12 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,16 @@
 # include <pwd.h>
 # include <grp.h>
 
-# define VALID_FLAGS "alrRtx1"
+# define VALID_FLAGS "alrRtx1Sog"
 
 enum				e_sorting_mode
 {
 	SORT_ALPHA,
 	SORT_ALPHA_REV,
 	SORT_MOD_TIME,
-	SORT_MOD_TIME_REV
+	SORT_MOD_TIME_REV,
+	SORT_SIZE,
+	SORT_SIZE_REV
 };
 
 typedef struct	s_file
@@ -131,7 +133,7 @@ int		check_if_dir(char *path);
 
 void	get_terminal_size(t_ls *ls);
 
-void	print_l(t_ls *ls, t_file *files);
+void	print_l(t_ls *ls, t_file *files, t_dir *dir);
 
 void	print_x(t_ls *ls, t_file *files);
 
@@ -150,8 +152,6 @@ int		count_cols(int file_amount, int row_amount);
 int		*calculate_padding(t_ls *ls, t_file *files, int row_amount);
 
 void	print_basic(t_ls *ls, t_file *files);
-
-void	print_files(t_ls *ls, t_file *files);
 
 void	count_total_blocks(t_dir *dir);
 
@@ -172,5 +172,19 @@ int		get_col_padding(t_ls *ls, t_file *files, int cols, int row_amount);
 void	print_color(t_file *file, char *format, char *str);
 
 void	print_one(t_ls *ls, t_file *files);
+
+t_file	*sorted_merge_size(t_file *first_half, t_file *second_half);
+
+t_file	*sorted_merge_size_rev(t_file *first_half, t_file *second_half);
+
+t_dir	*sorted_merge_size_dir(t_dir *first_half, t_dir *second_half);
+
+t_dir	*sorted_merge_size_rev_dir(t_dir *first_half, t_dir *second_half);
+
+void	print_o(t_ls *ls, t_file *files, t_dir *dir);
+
+void	print_g(t_ls *ls, t_file *files, t_dir *dir);
+
+void	print_files(t_ls *ls, t_file *files, t_dir *dir);
 
 #endif

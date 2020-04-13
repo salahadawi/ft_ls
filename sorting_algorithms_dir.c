@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/11 15:37:31 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/11 21:05:16 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/13 12:13:19 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,48 @@ t_dir	*sorted_merge_mod_time_rev_dir(t_dir *first_half, t_dir *second_half)
 		sorted = second_half;
 		sorted->next = sorted_merge_mod_time_rev_dir(first_half,
 		second_half->next);
+	}
+	return (sorted);
+}
+
+t_dir	*sorted_merge_size_dir(t_dir *first_half, t_dir *second_half)
+{
+	t_dir *sorted;
+
+	if (!first_half)
+		return (second_half);
+	if (!second_half)
+		return (first_half);
+	if (first_half->stats.st_size > second_half->stats.st_size)
+	{
+		sorted = first_half;
+		sorted->next = sorted_merge_size_dir(first_half->next, second_half);
+	}
+	else
+	{
+		sorted = second_half;
+		sorted->next = sorted_merge_size_dir(first_half, second_half->next);
+	}
+	return (sorted);
+}
+
+t_dir	*sorted_merge_size_rev_dir(t_dir *first_half, t_dir *second_half)
+{
+	t_dir *sorted;
+
+	if (!first_half)
+		return (second_half);
+	if (!second_half)
+		return (first_half);
+	if (first_half->stats.st_size < second_half->stats.st_size)
+	{
+		sorted = first_half;
+		sorted->next = sorted_merge_size_rev_dir(first_half->next, second_half);
+	}
+	else
+	{
+		sorted = second_half;
+		sorted->next = sorted_merge_size_rev_dir(first_half, second_half->next);
 	}
 	return (sorted);
 }
