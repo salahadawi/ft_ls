@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 12:20:24 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/12 20:27:06 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/13 12:04:21 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 # include <sys/ioctl.h>
 # include <sys/stat.h>
 # include <dirent.h>
-# include <unistd.h>
 # include <stdio.h>
 # include <time.h>
 # include <pwd.h>
@@ -169,5 +168,9 @@ void	free_ls(t_ls *ls);
 int		check_row(t_ls *ls, t_file *files, int row[2]);
 
 int		get_col_padding(t_ls *ls, t_file *files, int cols, int row_amount);
+
+void	print_color(t_file *file, char *format, char *str);
+
+void	print_one(t_ls *ls, t_file *files);
 
 #endif
