@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 13:11:14 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/12 22:12:44 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/13 12:37:32 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -263,6 +263,8 @@ void	sort_mode(t_ls *ls)
 		return ;
 	if (ft_strchr(ls->flags, 't'))
 		ls->sort_mode = SORT_MOD_TIME;
+	else if (ft_strchr(ls->flags, 'S'))
+		ls->sort_mode = SORT_SIZE;
 	if (ft_strchr(ls->flags, 'r'))
 		ls->sort_mode++;
 }
@@ -342,7 +344,7 @@ void	print_color(t_file *file, char *format, char *str)
 	ft_printf("\033[0m");
 }
 
-void	print_l(t_ls *ls, t_file *files)
+void	print_l(t_ls *ls, t_file *files, t_dir *dir)
 {
 	char *format;
 	(void)ls;
@@ -387,7 +389,126 @@ void	print_l(t_ls *ls, t_file *files)
 			if (S_ISLNK(files->stats.st_mode))
 			{
 				format = (char*)ft_memalloc(1000);
-				readlink(files->name, format, 999);
+				if (dir)
+					readlink(ft_strjoindir(dir->path, files->name), format, 999);
+				else
+					readlink(files->name, format, 999);
+				ft_printf(" -> ");
+				print_color(files, "%s", format);
+				free(format);
+			}
+			ft_printf("\n");
+		}
+		files = files->next;
+	}
+}
+
+void	print_o(t_ls *ls, t_file *files, t_dir *dir)
+{
+	char *format;
+	(void)ls;
+	while (files)
+	{
+		if (files->stats.st_mode) //seems to work?
+		{
+			if (S_ISLNK(files->stats.st_mode))
+				ft_printf("l");
+			else
+				ft_printf((S_ISDIR(files->stats.st_mode)) ? "d" : "-");
+			ft_printf((files->stats.st_mode & S_IRUSR) ? "r" : "-");
+			ft_printf((files->stats.st_mode & S_IWUSR) ? "w" : "-");
+			if (files->stats.st_mode & __S_ISUID)
+				ft_printf((files->stats.st_mode & S_IXUSR) ? "s" : "S");
+			else
+				ft_printf((files->stats.st_mode & S_IXUSR) ? "x" : "-");
+			ft_printf((files->stats.st_mode & S_IRGRP) ? "r" : "-");
+			ft_printf((files->stats.st_mode & S_IWGRP) ? "w" : "-");
+			if (files->stats.st_mode & __S_ISGID)
+				ft_printf((files->stats.st_mode & S_IXGRP) ? "s" : "S");
+			else
+				ft_printf((files->stats.st_mode & S_IXGRP) ? "x" : "-");
+			ft_printf((files->stats.st_mode & S_IROTH) ? "r" : "-");
+			ft_printf((files->stats.st_mode & S_IWOTH) ? "w" : "-");
+			if (files->stats.st_mode & __S_ISVTX)
+				ft_printf("T");
+			else
+				ft_printf((files->stats.st_mode & S_IXOTH) ? "x" : "-");
+			format = ft_sprintf(" %%%dd", ls->links_width);
+			ft_printf(format, files->stats.st_nlink);
+			free(format);
+			ft_printf(" %s", getpwuid(files->stats.st_uid)->pw_name);
+			format = ft_sprintf(" %%%dd", ls->size_width);
+			ft_printf(format, files->stats.st_size);
+			free(format);
+			format = format_time(ctime(&files->stats.st_ctime));
+			ft_printf(" %s", format);
+			free(format);
+			print_color(files, " %s", files->name);
+			if (S_ISLNK(files->stats.st_mode))
+			{
+				format = (char*)ft_memalloc(1000);
+				if (dir)
+					readlink(ft_strjoindir(dir->path, files->name), format, 999);
+				else
+					readlink(files->name, format, 999);
+				ft_printf(" -> ");
+				print_color(files, "%s", format);
+				free(format);
+			}
+			ft_printf("\n");
+		}
+		files = files->next;
+	}
+}
+
+void	print_g(t_ls *ls, t_file *files, t_dir *dir)
+{
+	char *format;
+	(void)ls;
+	while (files)
+	{
+		if (files->stats.st_mode) //seems to work?
+		{
+			if (S_ISLNK(files->stats.st_mode))
+				ft_printf("l");
+			else
+				ft_printf((S_ISDIR(files->stats.st_mode)) ? "d" : "-");
+			ft_printf((files->stats.st_mode & S_IRUSR) ? "r" : "-");
+			ft_printf((files->stats.st_mode & S_IWUSR) ? "w" : "-");
+			if (files->stats.st_mode & __S_ISUID)
+				ft_printf((files->stats.st_mode & S_IXUSR) ? "s" : "S");
+			else
+				ft_printf((files->stats.st_mode & S_IXUSR) ? "x" : "-");
+			ft_printf((files->stats.st_mode & S_IRGRP) ? "r" : "-");
+			ft_printf((files->stats.st_mode & S_IWGRP) ? "w" : "-");
+			if (files->stats.st_mode & __S_ISGID)
+				ft_printf((files->stats.st_mode & S_IXGRP) ? "s" : "S");
+			else
+				ft_printf((files->stats.st_mode & S_IXGRP) ? "x" : "-");
+			ft_printf((files->stats.st_mode & S_IROTH) ? "r" : "-");
+			ft_printf((files->stats.st_mode & S_IWOTH) ? "w" : "-");
+			if (files->stats.st_mode & __S_ISVTX)
+				ft_printf("T");
+			else
+				ft_printf((files->stats.st_mode & S_IXOTH) ? "x" : "-");
+			format = ft_sprintf(" %%%dd", ls->links_width);
+			ft_printf(format, files->stats.st_nlink);
+			free(format);
+			ft_printf(" %s", getgrgid(files->stats.st_gid)->gr_name);
+			format = ft_sprintf(" %%%dd", ls->size_width);
+			ft_printf(format, files->stats.st_size);
+			free(format);
+			format = format_time(ctime(&files->stats.st_ctime));
+			ft_printf(" %s", format);
+			free(format);
+			print_color(files, " %s", files->name);
+			if (S_ISLNK(files->stats.st_mode))
+			{
+				format = (char*)ft_memalloc(1000);
+				if (dir)
+					readlink(ft_strjoindir(dir->path, files->name), format, 999);
+				else
+					readlink(files->name, format, 999);
 				ft_printf(" -> ");
 				print_color(files, "%s", format);
 				free(format);
@@ -645,14 +766,18 @@ void	print_basic(t_ls *ls, t_file *files)
 	free(col_padding);
 }
 
-void	print_files(t_ls *ls, t_file *files)
+void	print_files(t_ls *ls, t_file *files, t_dir *dir)
 {
 	if (ft_strchr(ls->flags, 'l'))
-		print_l(ls, files);
+		print_l(ls, files, dir);
 	else if (ft_strchr(ls->flags, 'x'))
 		print_x(ls, files);
 	else if (ft_strchr(ls->flags, '1'))
 		print_one(ls, files);
+	else if (ft_strchr(ls->flags, 'o'))
+		print_o(ls, files, dir);
+	else if (ft_strchr(ls->flags, 'g'))
+		print_g(ls, files, dir);
 	else
 		print_basic(ls, files);
 }
@@ -681,7 +806,7 @@ void	print_ls(t_ls *ls)
 	dir_ptr = ls->dirs;
 	i = ls->dirs_amount - 1;
 	if (ls->files_amount)
-		print_files(ls, files_ptr);
+		print_files(ls, files_ptr, NULL);
 	if (dir_ptr)
 	{
 		if (ls->files_amount)
@@ -692,7 +817,7 @@ void	print_ls(t_ls *ls)
 				ft_printf("%s:\n", dir_ptr->path);
 			if (ft_strchr(ls->flags, 'l'))
 				count_total_blocks(dir_ptr);
-			print_files(ls, dir_ptr->files);
+			print_files(ls, dir_ptr->files, dir_ptr);
 			if (ls->dirs_amount > 1 && i--)
 				ft_printf("\n", dir_ptr->path);
 			dir_ptr = dir_ptr->next;
