@@ -6,14 +6,18 @@
 #    By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/04/10 19:27:20 by sadawi            #+#    #+#              #
-#    Updated: 2020/04/10 19:28:13 by sadawi           ###   ########.fr        #
+#    Updated: 2020/04/13 14:57:06 by sadawi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = ft_ls
-CFILES = *.c
-#SRCS = $(addprefix srcs/, $(CFILES))
-SRCS = $(CFILES)
+CFILES = column_padding.c create_struct.c free_memory.c get_terminal_stats.c \
+handle_error.c helper_functions.c main.c mergesort_dir.c mergesort.c \
+open_dir.c open_file.c print_digits.c print_ls.c print_modes.c print_row.c \
+print_stats.c save_options.c save_stats.c sort_files.c \
+sorting_algorithms_dir.c sorting_algorithms.c sorting_algorithms_rev.c \
+sorting_algorithms_rev_dir.c
+SRCS = $(addprefix srcs/, $(CFILES))
 OBJS = $(addprefix objs/, $(notdir $(SRCS:.c=.o)))
 INCLUDES = -I includes -I libft/includes
 FLAGS = -Wall -Wextra -Werror
