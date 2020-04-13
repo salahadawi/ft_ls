@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 12:20:24 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/13 12:37:12 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/13 15:00:25 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,156 +35,192 @@ enum				e_sorting_mode
 	SORT_SIZE_REV
 };
 
-typedef struct	s_file
+typedef struct		s_file
 {
 	char			*name;
 	struct s_file	*next;
 	struct stat		stats;
-}				t_file;
+}					t_file;
 
-typedef struct	s_dir
+typedef struct		s_dir
 {
 	char			*path;
 	t_file			*files;
 	struct stat		stats;
 	struct s_dir	*next;
-}				t_dir;
+}					t_dir;
 
-typedef	struct	s_ls
+typedef	struct		s_ls
 {
-	char		*flags;
-	t_file		*files;
-	t_dir		*dirs;
-	int			dirs_amount;
-	int			files_amount;
-	int			files_dirs_amount;
-	int			sort_mode;
-	int			links_width;
-	int			size_width;
-	int			window_cols;
-	int			window_rows;
-}				t_ls;
+	char			*flags;
+	t_file			*files;
+	t_dir			*dirs;
+	int				dirs_amount;
+	int				files_amount;
+	int				files_dirs_amount;
+	int				sort_mode;
+	int				links_width;
+	int				size_width;
+	int				window_cols;
+	int				window_rows;
+}					t_ls;
 
-void	handle_error(char *message);
+void				handle_error(char *message);
 
-int		char_index(char *str, char c);
+int					char_index(char *str, char c);
 
-void	new_file(t_file **files, char *name);
+void				new_file(t_file **files, char *name);
 
-char	*format_time(char *time);
+void				new_dir(t_dir **dir, char *path);
 
-void	open_files(t_ls *ls);
+char				*format_time(char *time);
 
-void	add_dir(t_ls *ls, t_dir **dir, char *path);
+char				*ft_strjoindir(char const *s1, char const *s2);
 
-int		ft_strcmp_case(const char *s1, const char *s2);
+int					nbrlen(int n);
 
-void	save_flag(t_ls *ls, char *flag);
+void				update_max_width(t_ls *ls, struct stat stats);
 
-void	save_options(t_ls *ls, int *argc, char ***argv);
+void				save_stats(t_ls *ls, t_file *current, char *path);
 
-void	sort_mode(t_ls *ls);
+void				save_stats_dir(t_ls *ls, t_dir *current);
 
-void	save_files(t_ls *ls, int argc, char **argv);
+void				open_files(t_ls *ls);
 
-void	init_ls(t_ls **ls, int *argc, char **argv);
+void				add_dir(t_ls *ls, t_dir **dir, char *path);
 
-t_file	*sorted_merge(t_ls *ls, t_file *first_half, t_file *second_half);
+int					ft_strcmp_case(const char *s1, const char *s2);
 
-void	split_list(t_file *head, t_file **first_half, t_file **second_half);
+void				save_flag(t_ls *ls, char *flag);
 
-void	mergesort(t_ls *ls, t_file **files);
+void				save_options(t_ls *ls, int *argc, char ***argv);
 
-t_file	*sorted_merge_alpha(t_file *first_half, t_file *second_half);
+void				sort_mode(t_ls *ls);
 
-t_file	*sorted_merge_alpha_rev(t_file *first_half, t_file *second_half);
+int					check_if_dir(char *path);
 
-t_file	*sorted_merge_mod_time(t_file *first_half, t_file *second_half);
+void				save_files(t_ls *ls, int argc, char **argv);
 
-t_file	*sorted_merge_mod_time_rev(t_file *first_half, t_file *second_half);
+void				get_terminal_size(t_ls *ls);
 
-t_dir	*sorted_merge_alpha_dir(t_dir *first_half, t_dir *second_half);
+void				init_ls(t_ls **ls, int *argc, char **argv);
 
-t_dir	*sorted_merge_alpha_rev_dir(t_dir *first_half, t_dir *second_half);
+void				print_color(t_file *file, char *format, char *str);
 
-t_dir	*sorted_merge_mod_time_dir(t_dir *first_half, t_dir *second_half);
+void				print_l(t_ls *ls, t_file *files, t_dir *dir);
 
-t_dir	*sorted_merge_mod_time_rev_dir(t_dir *first_half, t_dir *second_half);
+void				print_o(t_ls *ls, t_file *files, t_dir *dir);
 
-t_dir	*sorted_merge_dir(t_ls *ls, t_dir *first_half, t_dir *second_half);
+void				print_g(t_ls *ls, t_file *files, t_dir *dir);
 
-void	split_list_dir(t_dir *head, t_dir **first_half, t_dir **second_half);
+void				print_x(t_ls *ls, t_file *files);
 
-void	mergesort_dir(t_ls *ls, t_dir **dirs);
+void				print_one(t_ls *ls, t_file *files);
 
-void	new_dir(t_dir **dir, char *path);
+int					check_row(t_ls *ls, t_file *files, int row[2]);
 
-char	*ft_strjoindir(char const *s1, char const *s2);
+int					padding_total(t_ls *ls, t_file *files, int row_amount);
 
-int		nbrlen(int n);
+int					check_rows_len(t_ls *ls, t_file *files, int row_amount);
 
-void	update_max_width(t_ls *ls, struct stat stats);
+int					count_rows(t_ls *ls, t_file *files);
 
-void	save_stats(t_ls *ls, t_file *current, char *path);
+void				print_files_row(t_file *files, int row, int row_amount,
+					int *col_pad);
 
-void	save_stats_dir(t_ls *ls, t_dir *current);
+int					count_files(t_ls *ls, t_file *files);
 
-int		check_if_dir(char *path);
+int					count_cols(int file_amount, int row_amount);
 
-void	get_terminal_size(t_ls *ls);
+int					get_col_padding(t_ls *ls, t_file *files, int cols,
+					int row_amount);
 
-void	print_l(t_ls *ls, t_file *files, t_dir *dir);
+int					*calculate_padding(t_ls *ls, t_file *files, int row_amount);
 
-void	print_x(t_ls *ls, t_file *files);
+void				print_basic(t_ls *ls, t_file *files);
 
-int		padding_total(t_ls *ls, t_file *files, int row_amount);
+void				print_files(t_ls *ls, t_file *files, t_dir *dir);
 
-int		check_rows_len(t_ls *ls, t_file *files, int row_amount);
+void				count_total_blocks(t_dir *dir);
 
-int		count_rows(t_ls *ls, t_file *files);
+void				print_ls(t_ls *ls);
 
-void	print_files_row(t_file *files, int row, int row_amount, int *col_pad);
+void				sort_files(t_ls *ls);
 
-int		count_files(t_ls *ls, t_file *files);
+void				free_files(t_file *files);
 
-int		count_cols(int file_amount, int row_amount);
+void				free_dirs(t_dir *dirs);
 
-int		*calculate_padding(t_ls *ls, t_file *files, int row_amount);
+void				free_ls(t_ls *ls);
 
-void	print_basic(t_ls *ls, t_file *files);
+t_file				*sorted_merge(t_ls *ls, t_file *first_half,
+					t_file *second_half);
 
-void	count_total_blocks(t_dir *dir);
+void				split_list(t_file *head, t_file **first_half,
+					t_file **second_half);
 
-void	print_ls(t_ls *ls);
+void				mergesort(t_ls *ls, t_file **files);
 
-void	sort_files(t_ls *ls);
+t_dir				*sorted_merge_dir(t_ls *ls, t_dir *first_half,
+					t_dir *second_half);
 
-void	free_files(t_file *files);
+void				split_list_dir(t_dir *head, t_dir **first_half,
+					t_dir **second_half);
 
-void	free_dirs(t_dir *dirs);
+void				mergesort_dir(t_ls *ls, t_dir **dirs);
 
-void	free_ls(t_ls *ls);
+t_file				*sorted_merge_alpha(t_file *first_half,
+					t_file *second_half);
 
-int		check_row(t_ls *ls, t_file *files, int row[2]);
+t_file				*sorted_merge_alpha_rev(t_file *first_half,
+					t_file *second_half);
 
-int		get_col_padding(t_ls *ls, t_file *files, int cols, int row_amount);
+t_file				*sorted_merge_mod_time(t_file *first_half,
+					t_file *second_half);
 
-void	print_color(t_file *file, char *format, char *str);
+t_file				*sorted_merge_mod_time_rev(t_file *first_half,
+					t_file *second_half);
 
-void	print_one(t_ls *ls, t_file *files);
+t_file				*sorted_merge_size(t_file *first_half, t_file *second_half);
 
-t_file	*sorted_merge_size(t_file *first_half, t_file *second_half);
+t_file				*sorted_merge_size_rev(t_file *first_half,
+					t_file *second_half);
 
-t_file	*sorted_merge_size_rev(t_file *first_half, t_file *second_half);
+t_dir				*sorted_merge_alpha_dir(t_dir *first_half,
+					t_dir *second_half);
 
-t_dir	*sorted_merge_size_dir(t_dir *first_half, t_dir *second_half);
+t_dir				*sorted_merge_alpha_rev_dir(t_dir *first_half,
+					t_dir *second_half);
 
-t_dir	*sorted_merge_size_rev_dir(t_dir *first_half, t_dir *second_half);
+t_dir				*sorted_merge_mod_time_dir(t_dir *first_half,
+					t_dir *second_half);
 
-void	print_o(t_ls *ls, t_file *files, t_dir *dir);
+t_dir				*sorted_merge_mod_time_rev_dir(t_dir *first_half,
+					t_dir *second_half);
 
-void	print_g(t_ls *ls, t_file *files, t_dir *dir);
+t_dir				*sorted_merge_size_dir(t_dir *first_half,
+					t_dir *second_half);
 
-void	print_files(t_ls *ls, t_file *files, t_dir *dir);
+t_dir				*sorted_merge_size_rev_dir(t_dir *first_half,
+					t_dir *second_half);
+
+DIR					*open_dir(t_ls *ls, char *path);
+
+int					check_dir_recursive(t_ls *ls, char *name, char *filepath);
+
+void				print_file_row_format(t_file *files, int *col_pad,
+					int *first, int col);
+
+void				print_file_links(t_ls *ls, t_file *file);
+
+void				print_file_size(t_ls *ls, t_file *file);
+
+void				print_file_date(t_file *file);
+
+void				print_file_type(t_file *file);
+
+void				print_file_permissions(t_file *file);
+
+void				print_symbolic_link(t_file *file, t_dir *dir);
 
 #endif
