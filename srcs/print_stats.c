@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 14:45:43 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/13 14:52:07 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/04/14 13:12:50 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,11 @@ void	print_symbolic_link(t_file *file, t_dir *dir)
 			filepath = ft_strjoindir(dir->path, file->name);
 		else
 			filepath = file->name;
-		readlink(filepath, format, 999);
-		ft_printf(" -> ");
-		print_color(file, "%s", format);
+		if (readlink(filepath, format, 999) != -1)
+		{
+			ft_printf(" -> ");
+			print_color(file, "%s", format);
+		}
 		free(format);
 		free(filepath);
 	}
