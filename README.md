@@ -1,4 +1,4 @@
-<h1 align="center">ft_ls - Recoding a simple version of ls</h1>
+<h1 align="center">ft_ls - Recoding a simple version of ls.</h1>
 <p align="center">
     <img src="https://github.com/salahadawi/ft_ls/blob/master/images/ft_ls-simple.gif">
 </p>
