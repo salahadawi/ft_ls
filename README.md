@@ -12,7 +12,5 @@ The compiled binary works just like ls. Optional arguments can be stacked, and o
 
 <p align="center">
     <img src="https://github.com/salahadawi/ft_ls/blob/master/images/ft_ls-libft.gif">
-</p>
-<p align="center">
     <img src="https://github.com/salahadawi/ft_ls/blob/master/images/ft_ls-recursive.gif">
 </p>
