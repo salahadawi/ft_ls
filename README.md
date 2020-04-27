@@ -1,9 +1,9 @@
 <h1 align="center">ft_ls - Recoding a simple version of ls</h1>
-The goal of this project was to recode a often used system function, "ls".
 <p align="center">
     <img src="https://github.com/salahadawi/ft_ls/blob/master/images/ft_ls-simple.gif">
 </p>
 
+The goal of this project was to recode a often used system function, "ls".
 Optional arguments, such as -l, -R, -a, -r and -t have been recoded, among other features.
 
 ## Usage
