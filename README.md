@@ -16,5 +16,18 @@ The compiled binary works just like ls. Optional arguments can be stacked, and o
 ## Bonus
 As a bonus, several additional features have been implemented:
 
-Clean columns as seen here: 
+* Colors for different types of files and folders
+
+* Management of ACL
+
+* Clean columns as seen here:
+
 <img src="https://github.com/salahadawi/ft_ls/blob/master/images/ft_ls-columns.png">
+
+* Additional options:
+	* x flag for horizontal displayed
+	* 1 flag for single column display
+	* S flag for sort by size
+	* o show without group
+	* g show without owner
+	
