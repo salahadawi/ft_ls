@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 14:34:32 by sadawi            #+#    #+#             */
-/*   Updated: 2020/06/14 14:33:00 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/06/14 15:49:16 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ char	*ft_strjoindir(char const *s1, char const *s2)
 	if (!(str = (char*)ft_memalloc(len1 + ft_strlen(s2) + 2)))
 		return (NULL);
 	ft_strcpy(str, s1);
-	if (str[len1 - 1] != '/')
+	if (len1 < 1 || str[len1 - 1] != '/')
 		ft_strcat(str, "/");
 	ft_strcat(str, s2);
 	return (str);

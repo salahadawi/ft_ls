@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 14:43:06 by sadawi            #+#    #+#             */
-/*   Updated: 2020/06/14 14:14:10 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/06/14 15:49:42 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,10 @@ int		find_acl(t_file *files, t_dir *dir)
 	tmp = files;
 	while (tmp)
 	{
-		full_filepath = ft_strjoindir(dir->path, tmp->name);
+		if (dir)
+			full_filepath = ft_strjoindir(dir->path, tmp->name);
+		else
+			full_filepath = ft_strdup(tmp->name);
 		if (llistxattr(full_filepath, NULL, 0) > 0)
 		{
 			free(full_filepath);
