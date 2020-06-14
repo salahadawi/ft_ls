@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 14:43:06 by sadawi            #+#    #+#             */
-/*   Updated: 2020/06/14 15:49:42 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/06/14 17:34:37 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	print_ls(t_ls *ls)
 			ft_printf("\n");
 		while (dir_ptr)
 		{
-			if (ls->files_dirs_amount > 1)
+			if (ls->files_dirs_amount > 1 || ft_strchr(ls->flags, 'R'))
 				ft_printf("%s:\n", dir_ptr->path);
 			if (ft_strchr(ls->flags, 'l'))
 				count_total_blocks(dir_ptr);
