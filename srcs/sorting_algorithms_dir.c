@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/11 15:37:31 by sadawi            #+#    #+#             */
-/*   Updated: 2020/06/14 17:16:38 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/06/14 17:27:09 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,9 @@ t_dir	*sorted_merge_size_dir(t_dir *first_half, t_dir *second_half)
 		return (second_half);
 	if (!second_half)
 		return (first_half);
-	if (first_half->stats.st_size > second_half->stats.st_size)
+	if (first_half->stats.st_size > second_half->stats.st_size ||
+		(first_half->stats.st_size == second_half->stats.st_size &&
+		ft_strcmp_case(first_half->path, second_half->path) < 0))
 	{
 		sorted = first_half;
 		sorted->next = sorted_merge_size_dir(first_half->next, second_half);
