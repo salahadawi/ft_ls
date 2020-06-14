@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 12:20:24 by sadawi            #+#    #+#             */
-/*   Updated: 2020/06/14 14:05:36 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/06/14 17:16:22 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -220,5 +220,10 @@ void				print_file_type(t_file *file);
 void				print_file_permissions(t_ls *ls, t_file *file, t_dir *dir);
 
 void				print_symbolic_link(t_file *file, t_dir *dir);
+
+int					find_acl(t_file *files, t_dir *dir);
+
+int					ft_strcmp_case_basename(const char *s1, const char *s2,
+					int i);
 
 #endif

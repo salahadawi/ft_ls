@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 14:57:13 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/13 14:57:46 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/06/14 17:19:18 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,12 @@ t_dir	*sorted_merge_mod_time_rev_dir(t_dir *first_half, t_dir *second_half)
 		return (second_half);
 	if (!second_half)
 		return (first_half);
-	if (first_half->stats.st_mtime <= second_half->stats.st_mtime)
+	if (first_half->stats.st_mtime < second_half->stats.st_mtime ||
+		(first_half->stats.st_mtime == second_half->stats.st_mtime &&
+		first_half->stats.st_mtim.tv_nsec < second_half->stats.st_mtim.tv_nsec)
+		|| (first_half->stats.st_mtime == second_half->stats.st_mtime &&
+		first_half->stats.st_mtim.tv_nsec == second_half->stats.st_mtim.tv_nsec
+		&& ft_strcmp_case_basename(first_half->path, second_half->path, 0) > 0))
 	{
 		sorted = first_half;
 		sorted->next = sorted_merge_mod_time_rev_dir(first_half->next,

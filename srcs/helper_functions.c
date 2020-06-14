@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 14:34:32 by sadawi            #+#    #+#             */
-/*   Updated: 2020/06/14 15:49:16 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/06/14 17:17:05 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,4 +78,32 @@ int		ft_strcmp_case(const char *s1, const char *s2)
 		i++;
 	}
 	return ((unsigned char)low(s1[i]) - (unsigned char)low(s2[i]));
+}
+
+int		ft_strcmp_case_basename(const char *s1, const char *s2, int i)
+{
+	while (s1[i] && s2[i])
+	{
+		if (!ft_isalpha(s1[i]) && s1[i] != '/')
+		{
+			if (!ft_isalpha(s2[i]) && s2[i] != '/')
+				s2++;
+			s1++;
+			continue;
+		}
+		if (!ft_isalpha(s2[i]) && s2[i] != '/')
+		{
+			s2++;
+			continue;
+		}
+		if ((unsigned char)ft_tolower(s1[i])
+		!= (unsigned char)ft_tolower(s2[i]))
+		{
+			s1 = ft_strrchr(&s1[i], '/') ? ft_strrchr(&s1[i], '/') : &s1[i];
+			s2 = ft_strrchr(&s2[i], '/') ? ft_strrchr(&s2[i], '/') : &s2[i];
+			return (ft_strcmp_case(s1, s2));
+		}
+		i++;
+	}
+	return (ft_strcmp_case(&s1[i], &s2[i]));
 }
