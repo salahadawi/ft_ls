@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 14:44:42 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/13 14:45:15 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/06/14 15:38:12 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void	print_file_date(t_file *file)
 {
 	char *format;
 
-	format = format_time(ctime(&file->stats.st_ctime));
+	format = format_time(ctime(&file->stats.st_mtime));
 	ft_printf(" %s", format);
 	free(format);
 }
