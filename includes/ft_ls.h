@@ -109,10 +109,6 @@ void				print_color(t_file *file, char *format, char *str);
 
 void				print_l(t_ls *ls, t_file *files, t_dir *dir);
 
-void				print_o(t_ls *ls, t_file *files, t_dir *dir);
-
-void				print_g(t_ls *ls, t_file *files, t_dir *dir);
-
 void				print_x(t_ls *ls, t_file *files);
 
 void				print_one(t_ls *ls, t_file *files);
