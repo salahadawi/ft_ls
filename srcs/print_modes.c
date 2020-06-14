@@ -19,7 +19,7 @@ void	print_l(t_ls *ls, t_file *files, t_dir *dir)
 		if (files->stats.st_mode)
 		{
 			print_file_type(files);
-			print_file_permissions(files);
+			print_file_permissions(ls, files);
 			print_file_links(ls, files);
 			if (!ft_strchr(ls->flags, 'g'))
 				ft_printf(" %s", getpwuid(files->stats.st_uid)->pw_name);

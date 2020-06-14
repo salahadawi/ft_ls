@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 14:43:06 by sadawi            #+#    #+#             */
-/*   Updated: 2020/06/14 12:46:08 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/06/14 14:01:17 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,25 @@ void	print_ls(t_ls *ls)
 	}
 }
 
+int		find_acl(t_file *files)
+{
+	t_file *tmp;
+
+	tmp = files;
+	while (tmp)
+	{
+		if (llistxattr(tmp->name, NULL, 0) > 0)
+			return (1);
+		tmp = tmp->next;
+	}
+	return (0);
+}
+
 void	print_files(t_ls *ls, t_file *files, t_dir *dir)
 {
-	if (ft_strchr(ls->flags, 'l') || ft_strchr(ls->flags, 'o') || 
+	if (find_acl(files))
+		ls->acl_found = 1;
+	if (ft_strchr(ls->flags, 'l') || ft_strchr(ls->flags, 'o') ||
 	ft_strchr(ls->flags, 'g'))
 		print_l(ls, files, dir);
 	else if (ft_strchr(ls->flags, 'x'))
@@ -52,6 +68,7 @@ void	print_files(t_ls *ls, t_file *files, t_dir *dir)
 		print_one(ls, files);
 	else
 		print_basic(ls, files);
+	ls->acl_found = 0;
 }
 
 void	print_basic(t_ls *ls, t_file *files)

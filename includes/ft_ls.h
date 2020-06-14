@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 12:20:24 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/13 15:00:25 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/06/14 13:59:01 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include "../libft/includes/libft.h"
 # include <sys/types.h>
 # include <sys/ioctl.h>
+# include <sys/xattr.h>
 # include <sys/stat.h>
 # include <dirent.h>
 # include <stdio.h>
@@ -63,6 +64,7 @@ typedef	struct		s_ls
 	int				size_width;
 	int				window_cols;
 	int				window_rows;
+	int				acl_found;
 }					t_ls;
 
 void				handle_error(char *message);
@@ -215,7 +217,7 @@ void				print_file_date(t_file *file);
 
 void				print_file_type(t_file *file);
 
-void				print_file_permissions(t_file *file);
+void				print_file_permissions(t_ls *ls, t_file *file);
 
 void				print_symbolic_link(t_file *file, t_dir *dir);
 
