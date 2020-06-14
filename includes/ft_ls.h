@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/10 12:20:24 by sadawi            #+#    #+#             */
-/*   Updated: 2020/06/14 13:59:01 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/06/14 14:05:36 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,7 +217,7 @@ void				print_file_date(t_file *file);
 
 void				print_file_type(t_file *file);
 
-void				print_file_permissions(t_ls *ls, t_file *file);
+void				print_file_permissions(t_ls *ls, t_file *file, t_dir *dir);
 
 void				print_symbolic_link(t_file *file, t_dir *dir);
 

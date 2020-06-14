@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 14:42:29 by sadawi            #+#    #+#             */
-/*   Updated: 2020/06/14 13:58:51 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/06/14 14:05:26 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	print_l(t_ls *ls, t_file *files, t_dir *dir)
 		if (files->stats.st_mode)
 		{
 			print_file_type(files);
-			print_file_permissions(ls, files);
+			print_file_permissions(ls, files, dir);
 			print_file_links(ls, files);
 			if (!ft_strchr(ls->flags, 'g'))
 				ft_printf(" %s", getpwuid(files->stats.st_uid)->pw_name);

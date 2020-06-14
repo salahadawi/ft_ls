@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 14:45:43 by sadawi            #+#    #+#             */
-/*   Updated: 2020/06/14 14:01:34 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/06/14 14:17:52 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,10 @@ void	print_file_type(t_file *file)
 		ft_printf((S_ISDIR(file->stats.st_mode)) ? "d" : "-");
 }
 
-void	print_file_permissions(t_ls *ls, t_file *file)
+void	print_file_permissions(t_ls *ls, t_file *file, t_dir *dir)
 {
+	char *full_filepath;
+
 	ft_printf((file->stats.st_mode & S_IRUSR) ? "r" : "-");
 	ft_printf((file->stats.st_mode & S_IWUSR) ? "w" : "-");
 	if (file->stats.st_mode & __S_ISUID)
@@ -40,10 +42,10 @@ void	print_file_permissions(t_ls *ls, t_file *file)
 		ft_printf("T");
 	else
 		ft_printf((file->stats.st_mode & S_IXOTH) ? "x" : "-");
-	if (llistxattr(file->name, NULL, 0) > 0)
-		ft_printf("+");
-	else if (ls->acl_found)
-		ft_printf(" ");
+	full_filepath = ft_strjoindir(dir->path, file->name);
+	if (ls->acl_found)
+		ft_printf((llistxattr(full_filepath, NULL, 0) > 0) ? "+" : " ");
+	free(full_filepath);
 }
 
 void	print_symbolic_link(t_file *file, t_dir *dir)
