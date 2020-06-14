@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 14:42:29 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/13 14:42:53 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/06/14 12:46:37 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,10 @@ void	print_l(t_ls *ls, t_file *files, t_dir *dir)
 			print_file_type(files);
 			print_file_permissions(files);
 			print_file_links(ls, files);
-			ft_printf(" %s", getpwuid(files->stats.st_uid)->pw_name);
-			ft_printf(" %s", getgrgid(files->stats.st_gid)->gr_name);
+			if (!ft_strchr(ls->flags, 'g'))
+				ft_printf(" %s", getpwuid(files->stats.st_uid)->pw_name);
+			if (!ft_strchr(ls->flags, 'o'))
+				ft_printf(" %s", getgrgid(files->stats.st_gid)->gr_name);
 			print_file_size(ls, files);
 			print_file_date(files);
 			print_color(files, " %s", files->name);
