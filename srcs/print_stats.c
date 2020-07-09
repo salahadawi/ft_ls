@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 14:45:43 by sadawi            #+#    #+#             */
-/*   Updated: 2020/06/14 16:14:34 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/07/09 19:26:38 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ void	print_file_permissions(t_ls *ls, t_file *file, t_dir *dir)
 	ft_printf((file->stats.st_mode & S_IROTH) ? "r" : "-");
 	ft_printf((file->stats.st_mode & S_IWOTH) ? "w" : "-");
 	if (file->stats.st_mode & __S_ISVTX)
-		ft_printf("T");
+		ft_printf((file->stats.st_mode & S_IXOTH) ? "t" : "T");
 	else
 		ft_printf((file->stats.st_mode & S_IXOTH) ? "x" : "-");
 	full_filepath = dir ? ft_strjoindir(dir->path, file->name)
