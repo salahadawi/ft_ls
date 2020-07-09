@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 14:33:46 by sadawi            #+#    #+#             */
-/*   Updated: 2020/06/13 16:18:18 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/07/09 18:29:39 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,8 @@ int		count_rows(t_ls *ls, t_file *files)
 		files = files->next;
 	}
 	total_len -= 2;
+	if (total_len == -2)
+		return (0);
 	if (!ls->window_cols)
 		return (1);
 	rows = total_len / ls->window_cols + 1;
