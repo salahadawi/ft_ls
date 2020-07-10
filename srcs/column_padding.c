@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 14:32:14 by sadawi            #+#    #+#             */
-/*   Updated: 2020/04/13 14:54:11 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/07/09 21:57:02 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int		*calculate_padding(t_ls *ls, t_file *files, int row_amount)
 
 	file_amount = count_files(ls, files);
 	col_amount = count_cols(file_amount, row_amount);
-	col_padding = (int*)ft_memalloc(sizeof(int) * col_amount + 1);
+	col_padding = (int*)ft_memalloc(sizeof(int) * (col_amount + 1));
 	col = 0;
 	while (col < col_amount)
 	{
