@@ -6,7 +6,7 @@
 /*   By: sadawi <sadawi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 14:33:46 by sadawi            #+#    #+#             */
-/*   Updated: 2020/07/09 18:29:39 by sadawi           ###   ########.fr       */
+/*   Updated: 2020/07/09 21:55:24 by sadawi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,8 @@ int		check_rows_len(t_ls *ls, t_file *files, int row_amount)
 
 	padding = padding_total(ls, files, row_amount);
 	padding += count_files(ls, files) / row_amount * 2;
+	if (row_amount > count_files(ls, files))
+		return (1);
 	if (padding > ls->window_cols)
 		return (0);
 	return (1);
