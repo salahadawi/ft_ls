@@ -26,7 +26,7 @@ As a bonus, several additional features have been implemented:
 <img src="https://github.com/salahadawi/ft_ls/blob/master/images/ft_ls-columns.png">
 
 * Additional options:
-	* x flag for horizontal displayed
+	* x flag for horizontal display
 	* 1 flag for single column display
 	* S flag for sort by size
 	* o show without group
